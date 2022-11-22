@@ -1,5 +1,3 @@
-from crypt import crypt
-from curses import use_default_colors
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -33,29 +31,70 @@ fiat - (boundaries * fiat)
 
 crypto_wallet = 0.0
 fiat_wallet = 1000
+buy_grid = 3
+sell_grid = 0
+
+sales_price = []
 
 
-def buy(price, fiat):
+def buy(price):
     global crypto_wallet
     global fiat_wallet
-    price = 1100
-    investment = fiat / 3
+    global buy_grid
+    global sell_grid
+    global sales_price
+
+    if buy_grid == 0:
+        print("No money for trade")
+        return
+
+    investment = fiat / buy_grid
     fiat_wallet = fiat_wallet - investment
-
+    buy_grid = buy_grid - 1
+    sell_grid = sell_grid + 1
     crypto_wallet = crypto_wallet + (investment / price)
-    print(f"add {eth_amount} ETH")
+    sales_price.append(price)
+    print(
+        f"add {(investment / price)} ETH, money amount {fiat_wallet}, eth amnount {crypto_wallet}, buy grid {buy_grid} , sell grid {sell_grid}"
+    )
 
 
-buy(1100, fiat_wallet)
-
-
-def sell(price, fiat):
+def sell(price):
     global crypto_wallet
     global fiat_wallet
-    fiat = crypto_wallet * price
-    crypto_wallet = crypto_wallet - crypto_wallet
+    global buy_grid
+    global sell_grid
+    global sales_price
+
+    if sell_grid == 0:
+        print("Nothing to sell")
+        return
+
+    fiat = (crypto_wallet / sell_grid) * price
+    crypto_wallet = crypto_wallet - crypto_wallet / sell_grid
     fiat_wallet = fiat_wallet + fiat
-    print(f"add fiat {fiat} USD")
+    buy_grid = buy_grid + 1
+    sell_grid = sell_grid - 1
+
+    sales_price.append(price)
+    print(
+        f"add fiat {fiat} USD, money amount {fiat_wallet}, eth amnount {crypto_wallet}, buy grid {buy_grid} , sell grid {sell_grid}"
+    )
 
 
-sell(1300, fiat_wallet)
+buy(800)
+
+sell(1100)
+
+market_price = 1000
+
+
+if market_price >= min(sales_price) -  min(sales_price)*percentage:
+    print('sell')
+elif market_price <= max(sales_price) + max(sales_price)*percentage:
+    print('buy')
+else:
+    print('no action')
+
+
+sales_price
