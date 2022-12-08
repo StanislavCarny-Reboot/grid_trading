@@ -35,7 +35,7 @@ buy_grid = 3
 sell_grid = 0
 
 sales_price = []
-
+transactions = [1000]
 
 def buy(price):
     global crypto_wallet
@@ -48,15 +48,20 @@ def buy(price):
         print("No money for trade")
         return
 
-    investment = fiat / buy_grid
+    investment = fiat_wallet / buy_grid
     fiat_wallet = fiat_wallet - investment
     buy_grid = buy_grid - 1
     sell_grid = sell_grid + 1
     crypto_wallet = crypto_wallet + (investment / price)
     sales_price.append(price)
+    global transactions
+    transactions.append(fiat_wallet)
+
     print(
         f"add {(investment / price)} ETH, money amount {fiat_wallet}, eth amnount {crypto_wallet}, buy grid {buy_grid} , sell grid {sell_grid}"
     )
+
+    
 
 
 def sell(price):
@@ -65,6 +70,7 @@ def sell(price):
     global buy_grid
     global sell_grid
     global sales_price
+
 
     if sell_grid == 0:
         print("Nothing to sell")
@@ -75,26 +81,72 @@ def sell(price):
     fiat_wallet = fiat_wallet + fiat
     buy_grid = buy_grid + 1
     sell_grid = sell_grid - 1
+    transactions.append(fiat_wallet)
 
-    sales_price.append(price)
+    # sales_price.append(price)
     print(
         f"add fiat {fiat} USD, money amount {fiat_wallet}, eth amnount {crypto_wallet}, buy grid {buy_grid} , sell grid {sell_grid}"
     )
 
 
-buy(800)
+    
+sales_price =[1000]
 
-sell(1100)
+crypto_wallet = 0.0
+fiat_wallet = 1000
+buy_grid = 3
+sell_grid = 0
 
-market_price = 1000
+#sales_price = []
+
+fiat_wallet=1000
+
+def make_transaction(market_price,sales_price,percentage):
+
+    if market_price >= min(sales_price) +  max(sales_price)*percentage:
+        sell(market_price)
+        sales_index = sales_price.index(max(sales_price))
+        sales_price.pop(sales_index)
+        print('sell')
+    elif market_price <= min(sales_price) - min(sales_price)*percentage:
+        buy(market_price)
+        print('buy')
+    else:
+        print('no action')
+
+price=[1000,900,800,800,900,1000,1100,1200,1300]
+
+for i in price:
+    make_transaction(i,sales_price=[1500],percentage=0.10)
+
+fiat_wallet
+
+import matplotlib.pyplot as plt
+
+graph = pd.DataFrame(zip(price,transactions))
+
+graph.plot()
+plt.show()
 
 
-if market_price >= min(sales_price) -  min(sales_price)*percentage:
-    print('sell')
-elif market_price <= max(sales_price) + max(sales_price)*percentage:
-    print('buy')
-else:
-    print('no action')
+sorted_prices = prices.sort_values()
+
+transactions=[1000]
+
+crypto_wallet = 0.0
+fiat_wallet = 1000
+buy_grid = 10
+sell_grid = 0
+
+for i in sorted_prices:
+    make_transaction(i,sales_price=[2000],percentage=0.01)
 
 
-sales_price
+graph = pd.DataFrame(zip(transactions))
+
+graph.plot(marker='o')
+plt.show()
+
+transactions
+
+fiat_wallet
